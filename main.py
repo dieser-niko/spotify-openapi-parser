@@ -11,10 +11,6 @@ def ensure_url(url):
         files[url] = yaml.load(requests.get(url).text, Loader=yaml.CLoader)
 
 def resolve_path(current_path, new_path):
-    for item in current_path:
-        if isinstance(item, int):
-            print("please check", current_path, new_path)
-            break
     result = list()
     if new_path.startswith("#/"):
         result.append(current_path[0])
@@ -39,17 +35,10 @@ def crawler(path):
     ensure_url(path[0])
     data = files[path[0]]
     for index, item in enumerate(path[1:]):
-        try:
-            new_data = check_references(data[item], path[:index])
-            if new_data:
-                data[item] = new_data
-            data = data[item]
-                
-        except KeyError:
-            print(path)
-            with open("test.json", "w") as fobj:
-                json.dump(files[path[0]], fobj)
-            raise
+        new_data = check_references(data[item], path[:index])
+        if new_data:
+            data[item] = new_data
+        data = data[item]
     if isinstance(data, list):
         for index in range(len(data)):
             crawler(path + [index])
